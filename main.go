@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-11-01 18:18:44
- * @LastEditTime: 2020-11-12 17:14:55
+ * @LastEditTime: 2020-11-17 10:59:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /test/proto/a.go
@@ -58,16 +58,16 @@ func main() {
 
 		element.ForEach(selectURL, func(_ int, eleHref *colly.HTMLElement) {
 
-			if s > 18 {
-				return
-			}
+			// if s > 5 {
+			// 	return
+			// }
 
 			tmpurl := eleHref.Attr("href")
 			//if strings.Index(eleHref.Text,"第一章")!= -1{
 			fileTitle = append(fileTitle, eleHref.Text)
 			beginRevist = true
 			//}
-			fmt.Println("开始请求连接", tmpurl)
+			fmt.Printf("开始请求%s 连接%s", eleHref.Text, tmpurl)
 			// 休眠2秒
 			// time.Sleep(time.Millisecond * 2)
 			if beginRevist {
@@ -95,14 +95,22 @@ func main() {
 		r.Headers.Set("Accept-Language", "zh-CN, zh;q=0.9")
 	})
 	contselect := booksCofs.Key("contselect").MustString("div[class=showtxt]")
+	fmt.Println("contselect", contselect)
 
 	contentCollector.OnHTML(contselect, func(elementcont *colly.HTMLElement) {
 		// fmt.Printf("%s\n", elementcont.Text)
 		contentStr := strings.Replace(elementcont.Text, "\t", "", -1)
+
+		contentStr = strings.Replace(contentStr, "   ", "", -1)
+		// fmt.Println("contentStr", contentStr)
+		if contentStr == "" {
+			contentStr = "未找到内容"
+		}
 		filecontent = append(filecontent, contentStr)
 	})
 	contentCollector.OnResponse(func(resp *colly.Response) {
-		fmt.Println("连接下载成功", resp.Request.URL.String())
+		// fmt.Printf("连接下载成功\n", string(resp.Body))
+		// fmt.Printf("连接下载成功\n", resp.Request.URL.String())
 		fmt.Println("response received", resp.StatusCode)
 	})
 	c.Visit(urlstr)
@@ -112,12 +120,17 @@ func main() {
 		fmt.Println(len(fileTitle))
 	*/
 
+	if len(filecontent) < 1 {
+		fmt.Println("未采集到内容页面，请检查内容页contselect 设置")
+		return
+	}
+
 	// num := 3
 	// // fileNum := filenum % num
 
 	// var titileStr string
 
-	fmt.Println("fileTitleA", splitArray(fileTitle, 3))
+	// fmt.Println("fileTitleA", splitArray(fileTitle, 3))
 
 	strpath, _ := os.Getwd()
 
@@ -147,7 +160,7 @@ func main() {
 				fmt.Println(err)
 			}
 
-			fmt.Println("调用次数", i, path)
+			// fmt.Println("调用次数", i, path)
 
 		}
 
@@ -170,13 +183,15 @@ func writeFile(path string, fileTitle, filecontent []string) error {
 	for i := 0; i < filenum; i++ {
 		//fmt.Println(reflect.TypeOf(fileTitle[i]))
 
+		// fmt.Println("fileTitle[i]", fileTitle)
+
 		titileStr := strings.Replace(fileTitle[i], "\t", "", -1)
 		f.WriteString("###" + titileStr + "\r\n")
 		f.WriteString(filecontent[i])
 		f.WriteString("\r\n")
 		f.WriteString("\r\n")
 
-		fmt.Printf("正在下载%s,%d", titileStr+"\n", i)
+		fmt.Printf("正在写入文件%s,%d\n", titileStr, i)
 
 	}
 
