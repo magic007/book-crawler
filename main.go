@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2019-11-01 18:18:44
- * @LastEditTime: 2020-11-17 10:59:38
+ * @LastEditTime: 2020-11-20 18:28:25
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /test/proto/a.go
@@ -119,6 +119,8 @@ func main() {
 		fmt.Println(len(filecontent))
 		fmt.Println(len(fileTitle))
 	*/
+	fmt.Println(len(filecontent))
+	fmt.Println(len(fileTitle))
 
 	if len(filecontent) < 1 {
 		fmt.Println("未采集到内容页面，请检查内容页contselect 设置")
